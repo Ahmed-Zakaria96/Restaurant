@@ -16,3 +16,6 @@ the app is hosted on heroku using the free plan [https://restaurantseriestask.he
 	- login: renders register template ('login.html')
 	- apilogin: used for user login via api request
 	- logout: used to clear session and log out user
+## Run app
+1. install requirment ```pip install -r requirements.txt``` where requirments.txt is located
+2. flask run
