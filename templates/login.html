@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block content %}
+    <div class='tm-main-section light-gray-bg'>
+        <div class="container mb-4">
+            <section class='tm-section row'>
+                <div>
+                    <form action="/login" method="post">
+
+                    <div class="form-group">
+                        {{ form.username(class_="form-control", placeholder="User Name") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.password(class_="form-control", placeholder="Password") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.user_type(class_="form-control") }}
+                    </div>
+                    <button class="btn btn-primary" type="submit">LogIn</button>
+                </form>
+
+                </div>
+                
+            </section>
+        </div>
+    </div>
+{% endblock %}

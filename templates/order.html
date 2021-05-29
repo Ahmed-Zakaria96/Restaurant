@@ -1,0 +1,90 @@
+<!-- Load base template from base.html -->
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="row p-5">
+
+  <div class="col-sm-8">
+    <div>
+
+      {% for r in restaurants %}
+      <div class="card">
+        <div class="card-header" id="{{ r }}">
+          <a name="{{ r }}"></a>
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse{{ r.id }}"
+              aria-expanded="true" aria-controls="collapse{{ r }}">
+              {{r}}
+            </button>
+          </h5>
+        </div>
+        <div id="collapse{{ r.id }}" class="collapse show" aria-labelledby="{{ r.id }}" data-parent="#accordion">
+          <div class="card-body">
+            <ul class="list-group">
+              {% for m in r.restaurant %}
+              {% for i in m.menuitem %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                <div class="col-sm-8" style="text-align: left;">
+                  {{ i.name }} - ${{ i.price }}
+                </div>
+
+                <div class="col-sm-4" style="text-align: right;">
+                  <div class="input-group float-sm-right">
+                    <form class="order_form">
+                      <div class="btn-group float-sm-right mx-2" role="group">
+                        <input type="submit" class="btn btn-primary btn-sm" name="item{{ i.id }}" value="Add to Cart">
+                      </div>
+                      <input type="number" name="quantity" class="form-control form-control-sm" style="max-width: 60px;"
+                        min="1" value="1">
+                      <input name="item" value="{{ i.id }}" hidden>
+                      <input name="itemName" value="{{ i.name }}" hidden>
+                      <input name="itemPrice" value="{{ i.price }}" hidden>
+
+                    </form>
+                  </div>
+                </div>
+
+              </li>
+              {% endfor %}
+              {% endfor %}
+
+            </ul>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+
+    </div>
+  </div>
+
+  <div class="col-sm-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Your Cart</h5>
+        <div class="card-text" id="cart_content">
+          <ul style="padding-left:8%;" id="cart_test">
+
+          </ul>
+          <p style="display:none;" id='submit_order'>
+            <button type="button" class="btn btn-primary btn-sm" id='submit_order_button'>Submit Order</button>
+            <b>Total: $<span id="order_total"></span></b>
+          </p>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}
+{% block script %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/order.js') }}"></script>
+<!-- Templatemo Script -->
+
+{% endblock %}
