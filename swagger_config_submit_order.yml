@@ -1,0 +1,21 @@
+summary: "Restaurant api"
+description: "This is a simple API"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "data"
+  description: "Accepts a input dictionary of inputs item name and quatity"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      items:
+        type: "array"
+        example : [{'item': 'tea', 'quantity': 5 }, {'item': 'juice', 'quantity': 5}]
+
+responses:
+  405:
+    description: "Invalid input"

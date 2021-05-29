@@ -1,0 +1,23 @@
+summary: "Login Api"
+description: "This is a simple API"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "body"
+  name: "data"
+  description: "Accepts a input dictionary of inputs username and password"
+  required: true
+  schema:
+    type: "object"
+    properties:
+      username:
+        type: "string"
+        example : "a"
+      password:
+        type: "string"
+        example : "a"
+responses:
+  405:
+    description: "Invalid input"

@@ -74,10 +74,15 @@ function cancel() {
 }
 
 function submitorder() {
-  let ready_order = {}
-  for (i in order_list){
-    ready_order[i] = order_list[i]['quantity']
+  let ready_order = {'items': []}
+  
+  for (let i in order_list){
+    ready_order['items'].push({
+      'item': i,
+      'quantity': order_list[i]['quantity']
+    })
   }
+  console.log(ready_order)
   fetch(`/submit_order`, {
       method: 'POST',
       headers: {
@@ -90,7 +95,6 @@ function submitorder() {
       document.getElementById('cart_test').innerHTML = "order placed successfully";
       order_list = {}
       document.getElementById('order_total').innerHTML = 0;
-      console.log(res);
     })
   event.preventDefault();
 }

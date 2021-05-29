@@ -1,0 +1,21 @@
+summary: "Restaurant menu api"
+description: "This is a simple API"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+parameters:
+- in: "path"
+  name: "restaurant_id"
+  description: "Accepts a input restaurand id"
+  required: true
+  schema:
+    type: "integer"
+    properties:
+      restaurant_id:
+        type: "integer"
+        format: "int64"
+        example : 4
+responses:
+  405:
+    description: "Invalid input"

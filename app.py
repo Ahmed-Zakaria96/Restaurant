@@ -21,6 +21,33 @@ from forms import RegistrationForm
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import AdminIndexView
 
+from flasgger import Swagger
+from flasgger.utils import swag_from
+from flasgger import LazyString, LazyJSONEncoder
+
+
+swagger_config = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": "apispec_1",
+            "route": "/apispec_1.json",
+            "rule_filter": lambda rule: True,  # all in
+            "model_filter": lambda tag: True,  # all in
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    # "static_folder": "static",  # must be set by user
+    "swagger_ui": True,
+    "specs_route": "/swagger/",
+}
+
+template = dict(
+    swaggerUiPrefix=LazyString(lambda: request.environ.get("HTTP_X_SCRIPT_NAME", ""))
+)
+
+
+
 # custom admin dashboard access that require admin or restaurant to view or redirect to login
 
 class CustomAdminIndexView(AdminIndexView):
@@ -49,6 +76,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://bzxskshktslqpk:c1c6837f0e7
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 app.config['FLASK_ADMIN_SWATCH'] = 'darkly'
 admin = Admin(app, template_mode='bootstrap3', index_view=CustomAdminIndexView())
+
+app.config["SWAGGER"] = {"title": "Swagger-UI", "uiversion": 2}
+app.json_encoder = LazyJSONEncoder
+swagger = Swagger(app, config=swagger_config, template=template)
+
+
+
+
 
 # custom admin model view to control user interaction with dashboard
 class SuperView(ModelView):
@@ -92,16 +127,20 @@ def create_tables():
 @app.route("/", methods=["GET"])
 def index():
     restaurants = Restaurant.query.all()
-    return render_template("layout.html", restaurants=restaurants)
+    return render_template("layout.html")
 
 # order route
 @app.route('/order', methods=['GET'])
 def order():
+    user_id = session['user_id']
+    orders = [o.serialize() for o in Order.query.filter_by(user_id=user_id)]
     restaurants = Restaurant.query.all()
-    return render_template('order.html', restaurants=restaurants)
+    return render_template('order.html', restaurants=restaurants, orders=orders)
 
 # submit order by api
-@app.route('/submit_order', methods=["GET", "POST"])
+from sqlalchemy import func
+@app.route('/submit_order', methods=["POST"])
+@swag_from("swagger_config_submit_order.yml")
 def submit_order():
     data = request.json
     user_id = session['user_id']
@@ -109,22 +148,25 @@ def submit_order():
     order = Order(user_id=user)
     db.session.add(order)
     db.session.commit()
-    for i in data:
-        menuitem = MenuItem.query.filter_by(name=i).first().id
-        order_item = OrderItems(item_id=menuitem, order_id=order.id)
+    d = data['items']
+    for i in range(len(d)):
+        menuitem = MenuItem.query.filter(func.lower(MenuItem.name) == func.lower(d[i]['item'])).first().id
+        order_item = OrderItems(item_id=menuitem, order_id=order.id, amount=d[i]['quantity'])
         db.session.add(order_item)
         db.session.commit()
 
-    return jsonify(order.id)
+    return jsonify(d)
 
 # get all restaurants api
 @app.route("/restaurants", methods=["GET"])
+@swag_from("swagger_config_restaurants.yml")
 def restaurants():
     restaurants = [r.serialize() for r in Restaurant.query.all()]
     return jsonify(restaurants)
 
 # get restaurant menu api
 @app.route("/restaurants/<int:restaurant_id>", methods=["GET"])
+@swag_from("swagger_config_menu.yml")
 def restaurant_detail(restaurant_id):
     menu = Menu.query.filter_by(restaurant_id=restaurant_id).first()
     menuitems = [m.serialize() for m in MenuItem.query.filter_by(menu_id=menu.id)]
@@ -217,6 +259,7 @@ import json
 
 # login for normal user with api
 @app.route("/apilogin", methods=["POST"])
+@swag_from("swagger_config_login.yml")
 def apilogin():
     
     if request.method != "POST":
