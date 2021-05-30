@@ -155,7 +155,7 @@ def submit_order():
         db.session.add(order_item)
         db.session.commit()
 
-    return jsonify(d)
+    return jsonify("Successfully Submited Order")
 
 # get all restaurants api
 @app.route("/restaurants", methods=["GET"])
@@ -242,7 +242,7 @@ def login():
         # Ensure username exists and password is correct
         if user_check is None or not check_password_hash(user_check.password, request.form.get("password")) or not user_check.role.name == role:
             flash('Incorrect Username, Password and/or Role.')
-            return render_template("login.html", form=form, error=user_check.role.name)
+            return render_template("login.html", form=form, error="Incorrect Username, Password and/or Role")
 
         # Remember which user has logged in
         session["user_id"] = user_check.id
